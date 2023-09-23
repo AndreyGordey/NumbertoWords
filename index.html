@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number to Words Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: rgb(57, 85, 245);
+        }
+        h1 {
+            text-align: center;
+        }
+        .input-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .result {
+            text-align: center;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Number to Words Converter</h1>
+    <div class="input-container">
+        <label for="number-input">Enter any number:</label>
+        <input type="number" id="number-input">
+        <button onclick="convertToWords()">Convert</button>
+    </div>
+    <div class="result" id="result"></div>
+
+    <script>
+        const ones = [
+            'Zero', 'One', 'Two', 'Three', 'Four',
+            'Five', 'Six', 'Seven', 'Eight', 'Nine'
+        ];
+
+        const twos = [
+            'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen',
+            'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'
+        ];
+
+        const tens = [
+            'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty',
+            'Seventy', 'Eighty', 'Ninety', 'Hundred'
+        ];
+
+        const suffixes = [
+            '', 'Thousand', 'Million', 'Billion'
+        ];
+
+        function fetchWords(number, index) {
+            if (number === '0') return 'Zero';
+
+            number = number.padStart(3, '0');
+            const hundredsDigit = parseInt(number[0]);
+            const tensDigit = parseInt(number[1]);
+            const onesDigit = parseInt(number[2]);
+
+            let words = '';
+            if (number[0] !== '0') {
+                words += ones[hundredsDigit] + ' Hundred ';
+            }
+
+            if (tensDigit > 1) {
+                words += tens[tensDigit - 2] + ' ' + ones[onesDigit];
+            } else if (tensDigit === 1) {
+                words += twos[(tensDigit + onesDigit) % 10 - 1];
+            } else if (tensDigit === 0) {
+                words += ones[onesDigit];
+            }
+
+            if (words.endsWith('Zero')) {
+                words = words.slice(0, -4);
+            } else {
+                words += ' ';
+            }
+
+            if (words.length !== 0) {
+                words += suffixes[index];
+            }
+
+            return words;
+        }
+
+        function convertToWords() {
+            const numberInput = document.getElementById('number-input');
+            const resultContainer = document.getElementById('result');
+            const number = parseInt(numberInput.value);
+
+            if (isNaN(number)) {
+                resultContainer.textContent = 'Invalid number.';
+                return;
+            }
+
+            const length = number.toString().length;
+            if (length > 12) {
+                resultContainer.textContent = 'This program supports a maximum of 12 digit numbers.';
+                return;
+            }
+
+            let count = Math.floor(length / 3);
+            if (length % 3 !== 0) count++;
+            let copy = count;
+            const words = [];
+
+            for (let i = length - 1; i >= 0; i -= 3) {
+                words.push(fetchWords(
+                    number.toString().substring(i - 2 < 0 ? 0 : i - 2, i + 1), copy - count
+                ));
+                count--;
+            }
+
+            const finalWords = words.reverse().join(' ');
+
+            resultContainer.textContent = `${number} in words is: ${finalWords}`;
+        }
+    </script>
+</body>
+</html>
